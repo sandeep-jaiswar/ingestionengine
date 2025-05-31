@@ -8,7 +8,7 @@ apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
-group = 'com.example'
+group = 'com.backtestingbuddy'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -27,6 +27,10 @@ dependencies {
     implementation 'com.yahoofinance-api:YahooFinanceAPI:3.17.0' // Or the latest version
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+springBoot {
+    mainClass = 'com.backtestingbuddy.ingestionengine.IngestionEngineApplication'
 }
 
 tasks.named('test') {
