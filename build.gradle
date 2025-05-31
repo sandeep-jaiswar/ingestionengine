@@ -23,8 +23,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'com.github.housepower:clickhouse-native-jdbc:2.6.0' // Or the latest version
-    implementation 'com.yahoofinance-api:YahooFinanceAPI:3.17.0' // Or the latest version
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'com.clickhouse:clickhouse-jdbc:0.5.0' 
+    implementation 'com.yahoofinance-api:YahooFinanceAPI:3.17.0'
+    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1' // Added for @PostConstruct
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
