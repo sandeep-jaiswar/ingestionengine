@@ -26,7 +26,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'com.clickhouse:clickhouse-jdbc:0.5.0' 
     implementation 'com.yahoofinance-api:YahooFinanceAPI:3.17.0'
-    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1' // Added for @PostConstruct
+    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.2.1' // Added Apache HttpClient v5
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
