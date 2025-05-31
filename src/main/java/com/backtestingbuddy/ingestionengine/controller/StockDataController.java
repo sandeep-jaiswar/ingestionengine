@@ -33,45 +33,63 @@ public class StockDataController {
 
     @PostMapping("/stock")
     public ResponseEntity<?> ingestStockData(@RequestBody SecurityRequest securityRequest) {
+        logger.debug("Entering ingestStockData method.");
+
         if (securityRequest == null || securityRequest.getSecurityName() == null || securityRequest.getSecurityName().trim().isEmpty()) {
+            logger.debug("Validation failed: Security name is missing or empty.");
             return ResponseEntity.badRequest().body("Security name must be provided.");
         }
 
         String symbol = securityRequest.getSecurityName().trim().toUpperCase();
         logger.info("Received request to ingest data for symbol: {}", symbol);
+        logger.debug("Processing symbol: {}", symbol);
 
         try {
             // Fetch current quote
-            logger.info("Fetching stock quote for {}", symbol);
+            logger.debug("Calling YahooFinanceService.getStockQuote for {}", symbol);
             Stock stockQuote = yahooFinanceService.getStockQuote(symbol);
+            logger.debug("Received stock quote response for {}. Stock: {}", symbol, stockQuote);
+
             if (stockQuote != null && stockQuote.getQuote() != null) {
+                logger.debug("Stock quote found for {}. Saving...", symbol);
                 clickHouseService.saveStockQuote(stockQuote);
                 logger.info("Successfully fetched and saved stock quote for {}", symbol);
+                logger.debug("Stock quote saved successfully for {}", symbol);
             } else {
                 logger.warn("Could not retrieve stock quote for symbol: {}", symbol);
+                logger.debug("Stock quote is null or quote is null for {}", symbol);
             }
 
             // Fetch historical data
-            logger.info("Fetching historical data for {}", symbol);
+            logger.debug("Calling YahooFinanceService.getHistoricalData for {}", symbol);
             List<HistoricalQuote> historicalData = yahooFinanceService.getHistoricalData(symbol);
+            logger.debug("Received historical data response for {}. Records count: {}", symbol, historicalData != null ? historicalData.size() : 0);
+
             if (historicalData != null && !historicalData.isEmpty()) {
+                logger.debug("Historical data found for {}. Saving {} records...", symbol, historicalData.size());
                 clickHouseService.saveHistoricalData(symbol, historicalData);
                 logger.info("Successfully fetched and saved {} historical records for {}", historicalData.size(), symbol);
+                logger.debug("Historical data saved successfully for {}", symbol);
             } else {
                 logger.warn("Could not retrieve historical data for symbol: {}", symbol);
+                logger.debug("Historical data is null or empty for {}", symbol);
             }
             
             if (stockQuote == null && (historicalData == null || historicalData.isEmpty())) {
+                 logger.warn("No data (neither quote nor historical) found for symbol: {}", symbol);
                  return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No data found for symbol: " + symbol);
             }
 
+            logger.debug("Ingestion process completed successfully for symbol: {}", symbol);
             return ResponseEntity.ok("Data ingestion process completed for symbol: " + symbol);
 
         } catch (YahooFinanceException e) {
             logger.error("YahooFinanceException for symbol {}: {}", symbol, e.getMessage(), e);
+            logger.debug("YahooFinanceException details for {}: ", symbol, e);
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Error fetching data from Yahoo Finance: " + e.getMessage());
         } catch (Exception e) {
             logger.error("An unexpected error occurred while processing symbol {}: {}", symbol, e.getMessage(), e);
+            logger.debug("Unexpected error details for {}: ", symbol, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
         }
     }
